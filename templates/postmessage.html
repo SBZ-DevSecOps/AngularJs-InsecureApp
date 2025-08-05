@@ -1,0 +1,140 @@
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>PostMessage Vulnérabilités (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 0: Activer les listeners -->
+        <div class="well">
+            <h3>0. Activer les Listeners PostMessage</h3>
+            <button ng-click="activateListeners()" class="btn btn-warning" ng-disabled="listenersActive">
+                {{ listenersActive ? 'Listeners Actifs' : 'Activer les Listeners' }}
+            </button>
+            <p class="text-info">
+                <strong>ℹ️ Info :</strong> Les listeners ne sont pas actifs par défaut pour éviter les popups au chargement.
+                Cliquez ce bouton pour activer les vulnérabilités PostMessage.
+            </p>
+        </div>
+        
+        <!-- Section 1: Envoi de Messages -->
+        <div class="well">
+            <h3>1. Envoyer PostMessage</h3>
+            <input type="text" ng-model="messageToSend" class="form-control" 
+                   placeholder="Message à envoyer">
+            <input type="text" ng-model="targetOrigin" class="form-control" 
+                   placeholder="Origine cible (défaut: *)" value="*">
+            <button ng-click="sendToAnyOrigin()" class="btn btn-danger">
+                Envoyer à n'importe quelle origine (*)
+            </button>
+            <p class="text-danger">Utiliser '*' expose les données à tous les domaines!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li>Message : <code>{"secret": "mot-de-passe-123", "token": "abc123"}</code></li>
+                    <li>Origine : <code>*</code> (dangereux !)</li>
+                    <li>Ouvrez la console → Tous les frames peuvent recevoir ce message</li>
+                    <li>Alternative sûre : <code>https://trusted-domain.com</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 2: Messages Reçus -->
+        <div class="well">
+            <h3>2. Messages Reçus (Sans Validation)</h3>
+            <div class="alert" ng-class="{'alert-danger': listenersActive, 'alert-warning': !listenersActive}">
+                <strong>{{ listenersActive ? '⚠️ Listeners actifs:' : '⏸️ Listeners inactifs:' }}</strong> 
+                {{ listenersActive ? 'Écoute TOUS les messages sans vérifier l\'origine!' : 'Activez les listeners pour recevoir des messages' }}
+            </div>
+            <div ng-repeat="msg in receivedMessages" class="alert alert-warning">
+                <strong>Origine:</strong> {{msg.origin}}<br>
+                <strong>Données:</strong> {{msg.data | json}}
+            </div>
+            <div id="message-output" class="output"></div>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester la réception :</strong>
+                <ol>
+                    <li>D'abord, activez les listeners (bouton section 0)</li>
+                    <li>Ouvrez la Console DevTools (F12)</li>
+                    <li>Tapez : <code>window.postMessage({test: "Message reçu!"}, '*')</code></li>
+                    <li>Le message apparaît sans vérification d'origine !</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 3: Simulation d'Attaque -->
+        <div class="well">
+            <h3>3. Simuler une Attaque PostMessage</h3>
+            <button ng-click="simulateMessage()" class="btn btn-danger" ng-disabled="!listenersActive">
+                Simuler Message Malveillant
+            </button>
+            <p ng-show="!listenersActive" class="text-warning">
+                ⚠️ Activez d'abord les listeners pour que cette attaque fonctionne
+            </p>
+            <p>Envoie un message avec: action (eval), html (XSS), command (redirect)</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Ce que fait ce bouton :</strong>
+                <pre>{
+  action: "console.log('Message reçu!')",     // Exécuté via eval()
+  html: "&lt;img src=x onerror='alert(1)'&gt;",  // Injecté dans innerHTML
+  command: "redirect",                         // Déclenche une redirection
+  url: "http://evil.com"                      // Vers cette URL
+}</pre>
+                <strong>Impact :</strong> Code exécuté + XSS + Redirection !
+            </div>
+        </div>
+
+        <!-- Reste du template identique... -->
+        <!-- Section 4: Broadcast de Données -->
+        <div class="well">
+            <h3>4. Broadcast de Données Sensibles</h3>
+            <button ng-click="broadcastSensitiveData()" class="btn btn-danger">
+                Diffuser Données Sensibles
+            </button>
+            <p class="text-danger">
+                Diffuse mots de passe, tokens et clés API à TOUTES les fenêtres!
+            </p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour voir les données diffusées :</strong>
+                <ol>
+                    <li>Ajoutez d'abord des données : 
+                        <br><code>localStorage.setItem('password', 'SuperSecret123')</code>
+                        <br><code>localStorage.setItem('authToken', 'Bearer eyJ...')</code>
+                    </li>
+                    <li>Cliquez le bouton</li>
+                    <li>Regardez la console → Les données sont envoyées à TOUS</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 5: Auto-Répondeur -->
+        <div class="well">
+            <h3>5. Réponse Automatique Active</h3>
+            <div class="alert" ng-class="{'alert-danger': listenersActive, 'alert-info': !listenersActive}">
+                <strong>{{ listenersActive ? '⚠️ DANGER:' : 'ℹ️ Info:' }}</strong> 
+                {{ listenersActive ? 'Répond automatiquement avec les données localStorage/sessionStorage à TOUS les messages!' : 'L\'auto-répondeur sera actif après activation des listeners' }}
+            </div>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester l'auto-répondeur :</strong>
+                <pre>
+// Dans la console, créez un listener
+window.addEventListener('message', function(e) {
+    console.log('Réponse reçue:', e.data);
+});
+
+// Envoyez un message
+window.postMessage({request: 'getData'}, '*');
+
+// L'auto-répondeur envoie automatiquement vos données !
+                </pre>
+            </div>
+        </div>
+
+        <!-- Les autres sections restent identiques... -->
+
+    </div>
+</div>

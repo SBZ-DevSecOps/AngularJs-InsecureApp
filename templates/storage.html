@@ -1,0 +1,80 @@
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>Stockage Non Sécurisé (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 1: Mots de passe -->
+        <div class="well">
+            <h3>1. Mots de passe en localStorage</h3>
+            <input type="password" ng-model="password" class="form-control" placeholder="Mot de passe">
+            <button ng-click="storePassword(password)" class="btn btn-danger">Sauvegarder</button>
+            <p>Valeur stockée: {{getStoredPassword()}}</p>
+        </div>
+
+        <!-- Section 2: Tokens -->
+        <div class="well">
+            <h3>2. Tokens d'authentification</h3>
+            <input type="text" ng-model="token" class="form-control" placeholder="Token JWT">
+            <button ng-click="storeAuthToken(token)" class="btn btn-danger">Sauvegarder Token</button>
+            <p>Token actuel: {{getStoredToken()}}</p>
+        </div>
+
+        <!-- Section 3: Données bancaires -->
+        <div class="well">
+            <h3>3. Données bancaires</h3>
+            <input type="text" ng-model="cardNumber" class="form-control" placeholder="Numéro de carte">
+            <input type="text" ng-model="cvv" class="form-control" placeholder="CVV">
+            <button ng-click="storeCreditCard(cardNumber, cvv)" class="btn btn-danger">Sauvegarder</button>
+        </div>
+
+        <!-- Section 4: Secrets en dur -->
+        <div class="well">
+            <h3>4. Secrets en dur dans le code</h3>
+            <button ng-click="toggleSecrets()" class="btn btn-warning">
+                {{showSecrets ? 'Cacher' : 'Afficher'}} les secrets
+            </button>
+            <pre ng-show="showSecrets">{{secrets | json}}</pre>
+            <p class="text-danger">API Key visible: {{apiKey}}</p>
+        </div>
+
+        <!-- Section 5: Base64 encoding -->
+        <div class="well">
+            <h3>5. Encodage Base64 (pas du chiffrement!)</h3>
+            <input type="password" ng-model="passwordToEncode" class="form-control" placeholder="Mot de passe">
+            <button ng-click="encodePassword(passwordToEncode)" class="btn btn-danger">
+                "Encoder" (Base64)
+            </button>
+        </div>
+
+        <!-- Section 6: Console logs -->
+        <div class="well">
+            <h3>6. Console.log de données sensibles</h3>
+            <button ng-click="logSensitiveData()" class="btn btn-danger">
+                Log données sensibles
+            </button>
+            <p>Ouvrez la console pour voir les logs</p>
+        </div>
+
+        <!-- Section 7: Cookies non sécurisés -->
+        <div class="well">
+            <h3>7. Cookies sans flags de sécurité</h3>
+            <input type="text" ng-model="cookieName" class="form-control" placeholder="Nom du cookie">
+            <input type="text" ng-model="cookieValue" class="form-control" placeholder="Valeur">
+            <button ng-click="setInsecureCookie(cookieName, cookieValue)" class="btn btn-danger">
+                Créer Cookie
+            </button>
+        </div>
+
+        <!-- VULNÉRABLE: Données sensibles dans le template - DÉTECTÉ -->
+        <div class="well">
+            <h3>8. Données sensibles exposées</h3>
+            <p>Database Password: {{dbPassword}}</p>
+            <p>API Secret: {{apiSecret}}</p>
+            <!-- Même dans les commentaires HTML -->
+            <!-- Password: admin123 -->
+            <!-- Token: secret-token-12345 -->
+        </div>
+
+    </div>
+</div>

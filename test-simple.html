@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Simple - Sans AngularJS</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Test Simple - Vérification des Popups</h1>
+        
+        <div class="alert alert-info">
+            <h3>Cette page n'utilise PAS AngularJS</h3>
+            <p>Si vous voyez des popups sur cette page, le problème vient d'ailleurs (extension navigateur, etc.)</p>
+        </div>
+        
+        <div class="well">
+            <h3>Test Manuel</h3>
+            <button onclick="alert('Test manuel - popup volontaire')" class="btn btn-primary">
+                Cliquez pour tester une popup
+            </button>
+        </div>
+        
+        <div class="well">
+            <h3>Vérification Console</h3>
+            <button onclick="console.log('Test console'); document.getElementById('result').innerHTML = 'Console testée'" class="btn btn-info">
+                Test Console (pas de popup)
+            </button>
+            <div id="result"></div>
+        </div>
+        
+        <div class="alert alert-warning">
+            <h3>Instructions de débogage :</h3>
+            <ol>
+                <li>Ouvrez cette page : <code>test-simple.html</code></li>
+                <li>Si aucune popup n'apparaît → Le problème vient d'AngularJS</li>
+                <li>Si des popups apparaissent → Vérifiez vos extensions navigateur</li>
+                <li>Testez en mode incognito</li>
+                <li>Essayez un autre navigateur</li>
+            </ol>
+        </div>
+        
+        <hr>
+        
+        <h3>Liens vers l'application :</h3>
+        <ul>
+            <li><a href="index.html">Application AngularJS (avec vulnérabilités)</a></li>
+            <li><a href="index.html#!/">Page d'accueil (sans vulnérabilités actives)</a></li>
+            <li><a href="index.html#!/xss">Module XSS (nécessite activation)</a></li>
+        </ul>
+    </div>
+</body>
+</html>

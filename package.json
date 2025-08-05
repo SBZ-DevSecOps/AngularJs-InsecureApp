@@ -1,0 +1,25 @@
+{
+  "name": "angularjs-insecureapp",
+  "version": "1.0.0",
+  "description": "Application AngularJS avec vulnérabilités frontend pour tests SAST/SCA",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8080",
+    "serve": "live-server --port=8080"
+  },
+  "keywords": ["angularjs", "vulnerabilities", "sast", "security", "testing"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "angular": "1.6.9",
+    "angular-route": "1.6.9",
+    "angular-sanitize": "1.6.9",
+    "jquery": "2.2.4",
+    "lodash": "4.17.4",
+    "bootstrap": "3.3.7"
+  }
+}

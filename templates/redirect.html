@@ -1,0 +1,217 @@
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>Open Redirect & Crypto Faible (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 1: Open Redirect -->
+        <div class="well">
+            <h3>1. Open Redirect - window.location</h3>
+            <input type="text" ng-model="redirectUrl" class="form-control" 
+                   placeholder="Ex: http://evil.com ou javascript:alert(1)">
+            <button ng-click="redirectWithLocation()" class="btn btn-danger">Redirect (location.href)</button>
+            <button ng-click="redirectWithReplace()" class="btn btn-danger">Redirect (location.replace)</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>javascript:alert('Redirect to JS protocol')</code></li>
+                    <li><code>data:text/html,&lt;script&gt;alert('Data URL')&lt;/script&gt;</code></li>
+                    <li><code>http://evil.com</code> (redirection externe)</li>
+                    <li><code>//attacker.com</code> (protocole relatif)</li>
+                </ul>
+                <strong>⚠️ Attention :</strong> Ces redirections vont changer de page !
+            </div>
+        </div>
+
+        <!-- Section 2: Paramètres URL -->
+        <div class="well">
+            <h3>2. Redirect via Paramètres URL</h3>
+            <p>Paramètres actuels: {{getCurrentRedirectParams() | json}}</p>
+            <button ng-click="redirectFromParam()" class="btn btn-danger">
+                Redirect depuis Paramètre
+            </button>
+            <p class="text-muted">Testez avec: ?redirect=http://malicious.com</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Ajoutez à l'URL : <code>?redirect=javascript:alert('URL param')</code></li>
+                    <li>Ou : <code>?returnUrl=//evil.com</code></li>
+                    <li>Ou : <code>?next=data:text/html,&lt;h1&gt;Redirected&lt;/h1&gt;</code></li>
+                    <li>Rechargez la page et cliquez le bouton</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 3: Window.open -->
+        <div class="well">
+            <h3>3. Window.open Non Validé</h3>
+            <input type="text" ng-model="redirectUrl" class="form-control" 
+                   placeholder="Ex: javascript:alert('XSS')">
+            <button ng-click="openNewWindow()" class="btn btn-danger">Ouvrir Nouvelle Fenêtre</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>javascript:alert('Popup XSS')</code></li>
+                    <li><code>data:text/html,&lt;img src=x onerror=alert('Popup')&gt;</code></li>
+                    <li><code>about:blank</code> puis injection via window.opener</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 4: Meta Refresh -->
+        <div class="well">
+            <h3>4. Meta Refresh Injection</h3>
+            <input type="text" ng-model="redirectUrl" class="form-control" 
+                   placeholder="URL pour meta refresh">
+            <button ng-click="metaRefreshRedirect()" class="btn btn-danger">
+                Injecter Meta Refresh
+            </button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>javascript:alert('Meta refresh XSS')</code></li>
+                    <li><code>0;url=http://evil.com</code> (injection dans content)</li>
+                </ul>
+                <strong>Note :</strong> Regardez dans &lt;head&gt; pour voir la balise meta ajoutée
+            </div>
+        </div>
+
+        <!-- Section 5: JavaScript Protocol -->
+        <div class="well">
+            <h3>5. JavaScript Protocol Redirect</h3>
+            <input type="text" ng-model="redirectUrl" class="form-control" 
+                   placeholder="Ex: alert('Protocol XSS')">
+            <button ng-click="javascriptRedirect()" class="btn btn-danger">
+                Execute via javascript:
+            </button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>alert(document.cookie)</code></li>
+                    <li><code>prompt('Password?')</code></li>
+                    <li><code>document.body.innerHTML='&lt;h1&gt;Pwned&lt;/h1&gt;'</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 6: Crypto Faible - MD5 -->
+        <div class="well">
+            <h3>6. Cryptographie Faible - MD5</h3>
+            <input type="text" ng-model="hashInput" class="form-control" 
+                   placeholder="Texte à hasher">
+            <button ng-click="useMD5()" class="btn btn-danger">Hash MD5 (Obsolète)</button>
+            <p class="text-danger">MD5 est cassé et ne doit plus être utilisé!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li>Hash "password" → facilement crackable</li>
+                    <li>MD5 a des collisions connues</li>
+                    <li>Temps de crack : quelques secondes avec hashcat</li>
+                    <li>Utilisez SHA-256 minimum, ou mieux : bcrypt/scrypt/argon2</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 7: Crypto Faible - SHA1 -->
+        <div class="well">
+            <h3>7. Cryptographie Faible - SHA1</h3>
+            <input type="text" ng-model="hashInput" class="form-control" 
+                   placeholder="Texte à hasher">
+            <button ng-click="useSHA1()" class="btn btn-danger">Hash SHA1 (Compromis)</button>
+            <p class="text-danger">SHA1 a des collisions connues!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li>SHA1 est obsolète depuis 2017</li>
+                    <li>Google a démontré des collisions pratiques</li>
+                    <li>Coût d'une collision : ~$100k (en baisse)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 8: Clés Faibles -->
+        <div class="well">
+            <h3>8. Clés de Chiffrement Faibles</h3>
+            <button ng-click="weakEncryption()" class="btn btn-danger">
+                Utiliser Clés Faibles
+            </button>
+            <p>Exemples: "1234567890", "password", "key"</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Clés faibles détectées :</strong>
+                <ul>
+                    <li>Trop courtes : moins de 128 bits</li>
+                    <li>Prévisibles : "password", "123456", "admin"</li>
+                    <li>Patterns simples : "aaaaaaa", "1234567890"</li>
+                    <li>Mots du dictionnaire</li>
+                </ul>
+                <strong>Regardez la console pour voir les clés utilisées</strong>
+            </div>
+        </div>
+
+        <!-- Section 9: Referrer Redirect -->
+        <div class="well">
+            <h3>9. Redirection Basée sur Referrer</h3>
+            <button ng-click="referrerRedirect()" class="btn btn-danger">
+                Redirect vers Referrer
+            </button>
+            <p>Le referrer peut être falsifié!</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <p>Le referrer peut être contrôlé par l'attaquant via :</p>
+                <ul>
+                    <li>Headers HTTP forgés</li>
+                    <li>Meta referrer policy</li>
+                    <li>Liens depuis sites malveillants</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 10: Angular Location -->
+        <div class="well">
+            <h3>10. Angular $location Redirect</h3>
+            <input type="text" ng-model="redirectUrl" class="form-control" 
+                   placeholder="URL de redirection">
+            <button ng-click="angularRedirect()" class="btn btn-danger">
+                $location.url()
+            </button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>/#!/xss?q=&lt;script&gt;alert(1)&lt;/script&gt;</code></li>
+                    <li><code>#javascript:alert('Hash XSS')</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 11: Form Action -->
+        <div class="well">
+            <h3>11. Form Action Dynamique</h3>
+            <form id="redirect-form" method="GET">
+                <input type="text" name="data" placeholder="Données du formulaire" class="form-control">
+                <button type="button" ng-click="formActionRedirect()" class="btn btn-danger">
+                    Soumettre vers URL Dynamique
+                </button>
+            </form>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Entrez une URL dans le champ du haut (section 1)</li>
+                    <li>Cliquez "Soumettre vers URL Dynamique"</li>
+                    <li>Le formulaire sera soumis vers l'URL contrôlée par l'utilisateur</li>
+                </ol>
+            </div>
+        </div>
+
+    </div>
+</div>

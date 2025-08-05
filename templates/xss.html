@@ -1,0 +1,123 @@
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h2>XSS Vulnerabilities (AngularJS)</h2>
+    </div>
+    <div class="panel-body">
+        
+        <!-- Section 0: Activation des vulnérabilités -->
+        <div class="well" style="background-color: #f0f0f0;">
+            <h3 style="color: #d9534f;">⚠️ Activation Requise</h3>
+            <button ng-click="activateVulnerabilities()" 
+                    class="btn btn-lg" 
+                    ng-class="{'btn-warning': !enableVulnerability, 'btn-success': enableVulnerability}"
+                    ng-disabled="enableVulnerability">
+                <span ng-if="!enableVulnerability">🔒 Activer les Vulnérabilités XSS</span>
+                <span ng-if="enableVulnerability">✅ Vulnérabilités Activées</span>
+            </button>
+            <p class="text-info" style="margin-top: 10px;">
+                <strong>Sécurité :</strong> Les vulnérabilités sont désactivées par défaut pour éviter les exécutions automatiques.
+            </p>
+        </div>
+        
+        <!-- Section 1: innerHTML Direct -->
+        <div class="well">
+            <h3>1. innerHTML Direct</h3>
+            <input type="text" ng-model="userInput" class="form-control" 
+                   placeholder="Entrez du HTML (ex: <img src=x onerror=alert(1)>)">
+            <button ng-click="injectViaInnerHTML()" class="btn btn-danger">Injecter</button>
+            <div id="innerHTML-output" class="output"></div>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Activez les vulnérabilités (bouton ci-dessus)</li>
+                    <li>Entrez : <code>&lt;img src=x onerror=alert('XSS')&gt;</code></li>
+                    <li>Cliquez "Injecter"</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 2: ng-bind-html avec trustAsHtml -->
+        <div class="well">
+            <h3>2. ng-bind-html avec trustAsHtml</h3>
+            <input type="text" ng-model="htmlInput" class="form-control" placeholder="Entrez du HTML">
+            <button ng-click="bypassSecurity()" class="btn btn-danger">Bypass Security</button>
+            <!-- Utiliser ng-bind au lieu de ng-bind-html par défaut -->
+            <div class="output">
+                <span ng-if="!trustedHtml">Résultat apparaîtra ici</span>
+                <span ng-if="trustedHtml && enableVulnerability" ng-bind-html="trustedHtml"></span>
+                <span ng-if="trustedHtml && !enableVulnerability">Activez les vulnérabilités pour voir le résultat</span>
+            </div>
+        </div>
+
+        <!-- Section 3: Raw HTML (sans SCE) -->
+        <div class="well">
+            <h3>3. Raw HTML Input</h3>
+            <input type="text" ng-model="rawHtml" class="form-control" placeholder="HTML direct">
+            <div class="output">
+                <!-- Utiliser ng-bind pour éviter l'exécution -->
+                <span ng-bind="rawHtml"></span>
+            </div>
+            <p class="text-muted">Note: SCE n'est plus désactivé globalement</p>
+        </div>
+
+        <!-- Section 4: Expression Injection -->
+        <div class="well">
+            <h3>4. AngularJS Expression Injection</h3>
+            <input type="text" ng-model="userExpression" class="form-control" 
+                   placeholder="Ex: 2+2 ou constructor.constructor('alert(1)')()">
+            <button ng-click="evaluateExpression()" class="btn btn-danger">Évaluer Expression</button>
+            <p>Résultat: <span ng-bind="expressionResult"></span></p>
+        </div>
+
+        <!-- Section 5: document.write -->
+        <div class="well">
+            <h3>5. document.write</h3>
+            <input type="text" ng-model="writeInput" class="form-control" placeholder="Contenu pour document.write">
+            <button ng-click="useDocumentWrite()" class="btn btn-danger">Document Write</button>
+            
+            <div class="alert alert-warning">
+                <strong>⚠️ Attention :</strong> document.write remplacera toute la page !
+            </div>
+        </div>
+
+        <!-- Section 6: jQuery HTML -->
+        <div class="well">
+            <h3>6. jQuery HTML Injection</h3>
+            <button ng-click="jqueryInject()" class="btn btn-danger">Test jQuery</button>
+            <div id="jquery-output" class="output"></div>
+            <p class="text-muted">Utilise l'input de la section 1</p>
+        </div>
+
+        <!-- Section 7: DOM XSS via URL -->
+        <div class="well">
+            <h3>7. DOM XSS via URL Parameters</h3>
+            <p>Paramètre URL actuel: <strong ng-bind="urlParam"></strong></p>
+            <button ng-click="processUrlParam()" class="btn btn-warning">
+                Exécuter le Paramètre URL
+            </button>
+            <div id="url-output" class="output"></div>
+            
+            <div class="alert alert-info">
+                <strong>💡 Pour tester :</strong>
+                <ol>
+                    <li>Ajoutez à l'URL : <code>?q=&lt;img src=x onerror=alert(1)&gt;</code></li>
+                    <li>Rechargez la page</li>
+                    <li>Activez les vulnérabilités</li>
+                    <li>Cliquez "Exécuter le Paramètre URL"</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 8: ng-include dynamique -->
+        <div class="well">
+            <h3>8. ng-include Dynamique</h3>
+            <input type="text" ng-model="templateUrl" class="form-control" 
+                   placeholder="URL du template">
+            <button ng-click="loadTemplate()" class="btn btn-danger">Charger Template</button>
+            <!-- N'inclure que si activé ET si URL définie -->
+            <div ng-if="enableVulnerability && dynamicTemplate" ng-include="dynamicTemplate"></div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html ng-app="vulnerableApp">
+<head>
+    <meta charset="UTF-8">
+    <title>AngularJS SAST Test - Vulnérabilités Frontend</title>
+    
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-sanitize.min.js"></script>
+    
+    <!-- jQuery (pour certaines vulnérabilités) -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    
+    <!-- Lodash (version vulnérable) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+    
+    <!-- Bootstrap pour le style -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    
+    <!-- Styles personnalisés -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚨 AngularJS SAST Test - Vulnérabilités Frontend</h1>
+            <div class="alert alert-danger">
+                <strong>⚠️ ATTENTION:</strong> Cette application contient des vulnérabilités intentionnelles pour tester les outils SAST/SCA.
+                <strong>NE PAS UTILISER EN PRODUCTION!</strong>
+            </div>
+        </header>
+
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <ul class="nav navbar-nav">
+                    <li><a href="#!/xss">🔓 XSS</a></li>
+                    <li><a href="#!/storage">💾 Stockage</a></li>
+                    <li><a href="#!/injection">💉 Injection</a></li>
+                    <li><a href="#!/redirect">↗️ Redirect</a></li>
+                    <li><a href="#!/prototype">🔧 Prototype</a></li>
+                    <li><a href="#!/postmessage">📨 PostMessage</a></li>
+                    <li><a href="#!/fileupload">📁 File Upload</a></li>
+                    <li><a href="#!/regex">🔄 ReDoS</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main>
+            <div ng-view></div>
+        </main>
+
+        <footer class="footer">
+            <h3>📊 Vulnérabilités Détectables</h3>
+            <p>XSS, Injection, Stockage non sécurisé, Open Redirect, Prototype Pollution, etc.</p>
+            <p><strong>Total attendu: ~70 vulnérabilités détectables par SAST</strong></p>
+        </footer>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="app.js"></script>
+    <script src="controllers/xss.controller.js"></script>
+    <script src="controllers/storage.controller.js"></script>
+    <script src="controllers/injection.controller.js"></script>
+    <script src="controllers/redirect.controller.js"></script>
+    <script src="controllers/prototype.controller.js"></script>
+    <script src="controllers/postmessage.controller.js"></script>
+    <script src="controllers/fileupload.controller.js"></script>
+    <script src="controllers/regex.controller.js"></script>
+    <script src="services/vulnerable.service.js"></script>
+</body>
+</html>

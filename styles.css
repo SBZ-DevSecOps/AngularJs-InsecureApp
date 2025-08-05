@@ -1,0 +1,76 @@
+/* Styles pour l'application AngularJS SAST */
+
+body {
+    padding-top: 20px;
+    background-color: #f5f5f5;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: #d9534f;
+}
+
+.navbar {
+    margin-bottom: 30px;
+}
+
+.output {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 50px;
+}
+
+.well {
+    background: #fff;
+    margin-bottom: 20px;
+}
+
+.footer {
+    margin-top: 50px;
+    padding: 30px;
+    background: #333;
+    color: white;
+    text-align: center;
+}
+
+.footer h3 {
+    color: #d9534f;
+}
+
+pre {
+    max-height: 300px;
+    overflow: auto;
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
+    margin-bottom: 10px;
+}
+
+.btn {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+/* Mise en évidence des vulnérabilités */
+.text-danger {
+    font-weight: bold;
+}
+
+/* Pour les démonstrations XSS */
+#innerHTML-output,
+#jquery-output,
+#url-output,
+#dynamic-button-container {
+    border: 2px dashed #d9534f;
+    padding: 10px;
+    margin-top: 10px;
+}
